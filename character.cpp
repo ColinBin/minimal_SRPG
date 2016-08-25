@@ -1,3 +1,4 @@
+#include <cmath>
 #include "character.h"
 Character::Character(string name,bool is_alive,Camp camp,Career career){
 	this->name=name;
@@ -90,7 +91,9 @@ void Character::ResetCooldown(){
 	}
 }
 int Character::TakeDamage(int damage){
-	hp-=damage;
+	if(damage>0){
+		hp-=damage;
+	}
 	if(hp<=0){
 		hp=0;
 		is_alive=false;
@@ -102,4 +105,53 @@ string Character::GetName(){
 }
 int Character::GetHP(){
 	return hp;
+}
+
+/* customize move patterns */
+bool Character::IsInMoveRange(int target_x,int target_y){
+	int current_position_x=position->GetX();
+	int current_position_y=position->GetY();
+	switch(career){
+		case WARRIOR:
+			if(abs(current_position_x-target_x)+abs(current_position_y-target_y)<=mob){
+				return true;
+			}
+			break;
+		case WIZARD:
+			if(abs(current_position_x-target_x)+abs(current_position_y-target_y)<=mob){
+				return true;
+			}
+			break;
+		case ARCHER:
+			if(abs(current_position_x-target_x)+abs(current_position_y-target_y)<=mob){
+				return true;
+			}
+			break;
+	}
+	return false;
+}
+/* customize attack patterns */
+bool Character::IsInAttackRange(int target_x,int target_y){
+	int current_position_x=position->GetX();
+	int current_position_y=position->GetY();
+	switch(career){
+		case WARRIOR:
+			if(abs(current_position_x-target_x)+abs(current_position_y-target_y)<=range){
+				return true;
+			}
+			break;
+		case WIZARD:	
+			if(abs(current_position_x-target_x)+abs(current_position_y-target_y)<=range){
+				return true;
+			}
+			break;
+		case ARCHER:
+			int difference_x=abs(current_position_x-target_x);
+			int difference_y=abs(current_position_y-target_y);
+			if(difference_x==0&&difference_y<=range||difference_y==0&&difference_x<=range){
+				return true;
+			}
+			break;
+	}
+	return false;
 }

@@ -20,8 +20,11 @@ int main(int argc,char* argv[]){
 	cin>>map_length;
 	cout<<"Map width:"<<endl;
 	cin>>map_width;
-	
+		
 	Game game(defender_count,invader_count,map_length,map_width);
+	// get specific information for characters
+	game.Initialize();
+	// start
 	game.Start();
 
 	return 0;

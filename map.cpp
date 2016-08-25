@@ -14,14 +14,18 @@ Map::Map(){
 	SetMap(length,width);
 }
 Map::~Map(){
+	// free Position arrays first
 	for(int i=0;i<length;i++){
 		delete [] atlas[i];
 	}
+	// free Position pointer array
 	delete [] atlas;
 }
 void Map::SetMap(int length,int width){
+	// space for position pointer array
 	atlas=new Position*[length];
 	for(int i=0;i<length;i++){
+		// space for position arrays
 		atlas[i]=new Position[width];
 		for(int j=0;j<width;j++){
 			atlas[i][j].SetXY(i,j);
@@ -44,18 +48,7 @@ void Map::Show(){
     		// set background color
     		cout<<((i+j)%2?BG_BLACK:BG_WHITE);
     		if(temp!=NULL){
-    			string stamp;
-    			switch(temp->GetCareer()){
-    				case WARRIOR:
-    					stamp=WARRIOR_STAMP;							
-    					break;
-    				case WIZARD:
-    					stamp=WIZARD_STAMP;
-    					break;
-    				case ARCHER:
-    					stamp=ARCHER_STAMP;
-    					break;
-    			}
+    			string stamp=career_stamp[temp->GetCareer()];
     			cout<<((temp->GetCamp()==DEFENDER)?F_RED:F_BLUE)<<HIGHLIGHT;
     			cout.width(2);
     			cout<<stamp<<OFF;
@@ -67,38 +60,30 @@ void Map::Show(){
     	cout<<OFF<<endl;
     }
 }
-void Map::ShowMove(Character* character,int target_x,int target_y){
-	int mob=character->GetMob();
+void Map::ShowMove(Character* character,int cursor_x,int cursor_y){
 	int x=character->GetPosition()->GetX();
 	int y=character->GetPosition()->GetY();
 	for(int i=0;i<length;i++){
 		for(int j=0;j<width;j++){
 			if(x==i&&y==j){
+				// twinkle effect on current character
 				cout<<TWINKLE;
 			}
 			Character* temp=atlas[i][j].GetCharacter();
 			int difference_sum=abs(x-i)+abs(y-j);
 			// set base background color
-			if(i==target_x&&j==target_y){
+			if(i==cursor_x&&j==cursor_y){
+				// if current location is where the cursor is
 				cout<<BG_PURPLE;
-			}else if(difference_sum<=mob&&temp==NULL){
+			}else if(character->IsInMoveRange(i,j)&&temp==NULL){
+				// if current location is accessible
 				cout<<((difference_sum%2)?BG_D_GREEN:BG_GREEN);
 			}else{
+				// inaccessible location
 				cout<<((i+j)%2?BG_BLACK:BG_WHITE);
 			}
 			if(temp!=NULL){
-				string stamp;
-				switch(temp->GetCareer()){
-					case WARRIOR:
-					 	stamp=WARRIOR_STAMP;
-						break;
-					case WIZARD:
-						stamp=WIZARD_STAMP;
-						break;
-					case ARCHER:
-						stamp=ARCHER_STAMP;
-						break;
-				}
+				string stamp=career_stamp[temp->GetCareer()];
 				cout<<((temp->GetCamp()==DEFENDER)?F_RED:F_BLUE)<<HIGHLIGHT;
 				cout.width(2);
 				cout<<stamp<<OFF;
@@ -110,41 +95,30 @@ void Map::ShowMove(Character* character,int target_x,int target_y){
 		cout<<OFF<<endl;
 	}	
 }
-void Map::ShowAttack(Character* character,int target_x,int target_y){
+void Map::ShowAttack(Character* character,int cursor_x,int cursor_y){
 	int x=character->GetPosition()->GetX();
 	int y=character->GetPosition()->GetY();
-	int range=character->GetRange();
-	Career career=character->GetCareer();
 	for(int i=0;i<length;i++){
 		for(int j=0;j<width;j++){
 			if(x==i&&y==j){
+				// twinkle effect on current character
 				cout<<TWINKLE;
 			}
 			Character* temp=atlas[i][j].GetCharacter();
 			int difference_sum=abs(x-i)+abs(y-j);
 			// set base background color
-			if(i==target_x&&j==target_y){
+			if(i==cursor_x&&j==cursor_y){
+				// if current location is where the cursor is
 				cout<<BG_PURPLE;
-			}else if((career==WARRIOR||career==WIZARD)&&difference_sum<=range){
-				cout<<((difference_sum%2)?BG_RED:BG_YELLOW);
-			}else if(career==ARCHER&&((x==i&&abs(y-j)<=range)||(y==j&&abs(x-i)<=range))){
+			}else if(character->IsInAttackRange(i,j)){
+				// in attack range
 				cout<<((difference_sum%2)?BG_RED:BG_YELLOW);
 			}else{
+				// inaccessible location
 				cout<<(((i+j)%2)?BG_BLACK:BG_WHITE);
 			}
 			if(temp!=NULL){
-				string stamp;
-				switch(temp->GetCareer()){
-					case WARRIOR:
-						stamp=WARRIOR_STAMP;
-						break;
-					case WIZARD:
-						stamp=WIZARD_STAMP;
-						break;
-					case ARCHER:
-						stamp=ARCHER_STAMP;
-						break;
-				}
+				string stamp=career_stamp[temp->GetCareer()];
 				cout<<((temp->GetCamp()==DEFENDER)?F_RED:F_BLUE)<<HIGHLIGHT;
 				cout.width(2);
 				cout<<stamp<<OFF;
@@ -156,6 +130,7 @@ void Map::ShowAttack(Character* character,int target_x,int target_y){
 		cout<<OFF<<endl;
 	}
 }
+
 int Map::GetLength(){
 	return length;
 }

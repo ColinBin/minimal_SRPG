@@ -2,7 +2,13 @@
 #include <string>
 #include <cmath>
 #include <cstdlib>
+#include <cctype>
 #include "game.h"
+
+#define GIVE_UP	0
+#define ERROR 	1
+#define OK 		2
+#define DONE 	3
 
 using namespace std;
 
@@ -15,7 +21,6 @@ Game::Game(){
 	defender=new Character*[defender_count];
 	invader=new Character*[invader_count];
 	Initialize();
-
 }
 
 Game::Game(int defender_count,int invader_count,int map_length,int map_width){
@@ -26,7 +31,6 @@ Game::Game(int defender_count,int invader_count,int map_length,int map_width){
 	map=new Map(map_length,map_width);
 	defender=new Character*[defender_count];
 	invader=new Character*[invader_count];
-	Initialize();
 }
 
 void Game::Initialize(){
@@ -39,11 +43,19 @@ void Game::Initialize(){
 		cout<<"Input name:"<<endl;
 		cin>>name;
 		Career career;
-		int career_option;
+		char career_option;
 		cout<<"Input career:"<<endl;
 		cout<<"1. Warrior\n"<<"2. Wizard\n"<<"3. Archer"<<endl;
-		cin>>career_option;
-		switch(career_option){
+		while(true){
+			cin.ignore();
+			career_option=cin.get();
+			if(career_option>='1'&&career_option<='3'){
+				break;
+			}else{
+				cout<<F_RED<<"Input 1,2 or 3"<<OFF<<endl;
+			}
+		}
+		switch(career_option-'0'){
 			case 1:
 				career=WARRIOR;
 				break;
@@ -64,11 +76,19 @@ void Game::Initialize(){
 		cout<<"Input name:"<<endl;
 		cin>>name;
 		Career career;
-		int career_option;
+		char career_option;
 		cout<<"Input career:"<<endl;
 		cout<<"1. Warrior\n"<<"2. Wizard\n"<<"3. Archer"<<endl;
-		cin>>career_option;
-		switch(career_option){
+		while(true){
+			cin.ignore();
+			cin.get(career_option);
+			if(career_option>='1'&&career_option<='3'){
+				break;
+			}else{
+				cout<<F_RED<<"Input 1,2 or 3"<<OFF<<endl;
+			}
+		}
+		switch(career_option-'0'){
 			case 1:
 				career=WARRIOR;
 				break;
@@ -100,6 +120,7 @@ void Game::BuildHeap(){
 	}
 }
 void Game::AdjustHeap(int i,int heap_size){
+	// adjust the heap according to cooldown
 	int value=heap[i]->GetCooldown();
 	while(true){
 		if(i*2+1<=heap_size){
@@ -185,9 +206,72 @@ void ShowCareerInfo(){
 	cout<<"RANGE\t"<<ARCHER_BASE_RANGE<<endl;
 	cout<<OFF;
 }
+int Game::HandleCommand(const int x,const int y,int& x_difference,int& y_difference){
+	string command;
+	bool error=false;
+	bool done=false;
+	bool forsake=false;
+	cin>>command;
+	for(int i=0;i<command.length();i++){
+		// check one character a time
+		switch(command[i]){
+			case UP:
+				if(x+x_difference>0){
+					x_difference-=1;
+				}
+				break;
+			case DOWN:
+				if(x+x_difference<map->GetLength()-1){
+					x_difference+=1;
+				}
+				break;
+			case LEFT:
+				if(y+y_difference>0){
+					y_difference-=1;
+				}
+				break;
+			case RIGHT:	
+				if(y+y_difference<map->GetWidth()-1){
+					y_difference+=1;
+				}
+				break;
+			case FORSAKE:
+				forsake=true;
+				break;
+			case CONFIRM:
+				done=true;
+				break;
+			default:
+				if(!error){
+					// first wrong character
+					system("clear");
+					error=true;
+				}
+				cout<<F_YELLOW<<"Unknown command "<<command[i]<<OFF<<endl;
+				break;
+		}
+		if(!error){
+			// no error, done or forsake
+			if(forsake){
+				return GIVE_UP;
+			}
+			if(done){
+				return DONE;
+			}
+		}	
+	}
+	if(error){
+		return ERROR;
+	}else{
+		return OK;
+	}
+} 
+
 void Game::Attack(Character* character){
+	// current position
 	int x;
 	int y;
+	// attack target location
 	int x_attack;
 	int y_attack;
 	int range;
@@ -195,245 +279,149 @@ void Game::Attack(Character* character){
 	Career career;
 	x=character->GetPosition()->GetX();
 	y=character->GetPosition()->GetY();
+	// initialize
 	x_attack=x;
 	y_attack=y;
 	range=character->GetRange();
 	career=character->GetCareer();
 	camp=character->GetCamp();
-	system("clear");
-	cout<<endl;
-	map->ShowAttack(character,x_attack,y_attack);
-	ShowStatus();
-	bool done=false;
-	bool forsake=false;
-	while(!done){
-		string attack_command;
-		int x_difference=0;
-		int y_difference=0;
-		bool error=false;
-		cin>>attack_command;
+	string command_error_info="";
+	while(true){
+		// display the map and related information
 		system("clear");
-		for(int i=0;i<attack_command.length();i++){
-			switch(attack_command[i]){
-				case UP:
-					if(x_attack+x_difference>0){
-						x_difference-=1;
-					}
-					break;
-				case DOWN:
-					if(x_attack+x_difference<map->GetLength()-1){
-						x_difference+=1;
-					}
-					break;
-				case LEFT:
-					if(y_attack+y_difference>0){
-						y_difference-=1;
-					}
-					break;
-				case RIGHT:	
-					if(y_attack+y_difference<map->GetWidth()-1){
-						y_difference+=1;
-					}
-					break;
-				case FORSAKE:
-					forsake=true;
-					break;
-				case CONFIRM:
-					done=true;
-					break;
-				default:
-					error=true;
-					cout<<F_YELLOW<<"Unknown command "<<attack_command[i]<<OFF<<endl;
-					break;
-			}
-			if(done||forsake){
-				break;
-			}
-			
-		}
-		if(error){
-			done=false;
-			forsake=false;
-			cout<<"Press Enter to continue"<<endl;
-			while(cin.get()!='c')
-				;
-			system("clear");
-			cout<<endl;
-			map->ShowAttack(character,x_attack,y_attack);
-			ShowStatus();
-			ShowCommand();
-			continue;
-		}
-		if(forsake){
-			break;
-		}
-		//validate player's attack
-		Character* target;
-		target=map->IsOccupied(x_attack+x_difference,y_attack+y_difference);
-		int difference_x=abs(x-(x_attack+x_difference));
-		int difference_y=abs(y-(y_attack+y_difference));
-		int difference_sum=difference_x+difference_y;
-		if(difference_sum<=range&&(career==WARRIOR||career==WIZARD||(career==ARCHER&&(difference_x==0||difference_y==0)))){
-			if(done){
-				if(target!=NULL){
-					if(target->GetCamp()!=camp){
-						int left_hp=target->TakeDamage(character->GetAtt()-target->GetDef());
-						if(left_hp==0){
-							//unlink from the map
-							target->GetPosition()->UnsetCharacter();
-							//update game info
-							if(camp==DEFENDER){
-								defender_kill++;
-							}else{
-								invader_kill++;
-							}	
-						}
-						cout<<endl;
-						map->Show();
-					}else{
-						if(target==character){
-							cout<<"Can not attack yourself"<<endl;
-						}else{
-							cout<<"Can not attack your allies!"<<endl;
-						}
-						done=false;
-						map->ShowAttack(character,x_attack,y_attack);
-					}
-				}else{
-					done=false;
-					cout<<"Invalid attack: no target"<<endl;
-					map->ShowAttack(character,x_attack,y_attack);
-				}
-			}else{
-				if(target!=NULL&&target->GetCamp()==camp&&target!=character){
-					cout<<"Can not attack your allies!"<<endl;
-					map->ShowAttack(character,x_attack,y_attack);
-
-				}else{
-					cout<<endl;
-					x_attack+=x_difference;
-					y_attack+=y_difference;
-					map->ShowAttack(character,x_attack,y_attack);
-				}
-			}
-		}else{
-			cout<<"Invalid attack: beyond range"<<endl;
-			map->ShowAttack(character,x_attack,y_attack);
-		}
+		cout<<command_error_info<<endl;
+		command_error_info="";
+		map->ShowAttack(character,x_attack,y_attack);
 		ShowStatus();
 		ShowCommand();
-	}
 
-}
-void Game::Move(Character* character){
-	int x;
-	int y;
-	int x_move;
-	int y_move;
-	int mob;
-	x=character->GetPosition()->GetX();
-	y=character->GetPosition()->GetY();
-	x_move=x;
-	y_move=y;
-	mob=character->GetMob();
-	system("clear");
-	cout<<endl;
-	map->ShowMove(character,x_move,y_move);
-	ShowStatus();
-	ShowCommand();
-	bool done=false;
-	bool forsake=false;
-	while(!done){
-		string move_command;
+		int command_status;
 		int x_difference=0;
 		int y_difference=0;
-		bool error=false;
-		cin>>move_command;
-		system("clear");
-		for(int i=0;i<move_command.length();i++){
-			switch(move_command[i]){
-				case UP:
-					if(x_move+x_difference>0){
-						x_difference-=1;
-					}
-					break;
-				case DOWN:
-					if(x_move+x_difference<map->GetLength()-1){
-						x_difference+=1;
-					}
-					break;
-				case LEFT:
-					if(y_move+y_difference>0){
-						y_difference-=1;
-					}
-					break;
-				case RIGHT:
-					if(y_move+y_difference<map->GetWidth()-1){
-						y_difference+=1;
-					}
-					break;
-				case FORSAKE:
-					forsake=true;
-					break;
-				case CONFIRM:
-					done=true;
-					break;
-				default:
-					error=true;
-					cout<<"Unknown command "<<move_command[i]<<endl;
-					break;
-			}
-			if(done||forsake){
-				break;
-			}
-		}
-		if(error){
-			done=false;
-			forsake=false;
+		// get status of command input
+		command_status=HandleCommand(x_attack,y_attack,x_difference,y_difference);
+		// if error in user input, restart input
+		if(command_status==ERROR){
 			cout<<"Press c to continue"<<endl;
 			while(cin.get()!='c')
 				;
-			system("clear");
-			cout<<endl;
-			map->ShowMove(character,x_move,y_move);
-			ShowStatus();
-			ShowCommand();
 			continue;
-		}
-		if(forsake){
+		}else if(command_status==GIVE_UP){
+			// if no error and user gives up movements
 			break;
 		}
-		//validate player's move
-		Character* target;
-		target=map->IsOccupied(x_move+x_difference,y_move+y_difference);
-		int difference_sum=abs(x-(x_move+x_difference))+abs(y-(y_move+y_difference));
-		if(difference_sum<=mob&&target==NULL||target==character){
-			//spare a empty line to make display nice
-			cout<<endl;
-			x_move+=x_difference;
-			y_move+=y_difference;
-			if(done){
-				map->MoveCharacter(character,x_move,y_move);
-				map->Show();
-			}else{
-				map->ShowMove(character,x_move,y_move);	
-			}
-		}else{
-			if(target!=NULL){
-				cout<<"Invalid move: position already occupied"<<endl;
-			}else{
-				cout<<"Invalid move: beyond range"<<endl;
-			}
-			done=false;
-			map->ShowMove(character,x_move,y_move);
+
+		// validate player's attack
+		// if beyond range
+		if(!character->IsInAttackRange(x_attack+x_difference,y_attack+y_difference)){	
+			command_error_info="Invalid attack: beyond range";
+			continue;
 		}
+		// within range and not done, update x_attack, y_attack
+		if(command_status==OK){
+			x_attack=x_attack+x_difference;
+			y_attack=y_attack+y_difference;
+			continue;
+		}
+		// within range and done, validate
+		if(command_status==DONE){
+			Character* target=map->IsOccupied(x_attack+x_difference,y_attack+y_difference);
+			if(target==NULL||target->GetCamp()==camp){
+				// no target or invalid target
+				if(target==NULL){
+					command_error_info="Invalid attack: no target";
+				}else if(target==character){
+					command_error_info="Can not attack yourself";
+				}else{
+					command_error_info="Can not attack your allies!";
+				}
+				// next loop
+				continue;
+			}else{
+				// valid attack
+				int left_hp=target->TakeDamage(character->GetAtt()-target->GetDef());
+				if(left_hp==0){
+					//unlink from the map
+					target->GetPosition()->UnsetCharacter();
+					if(camp==DEFENDER){
+						defender_kill++;
+					}else{
+						invader_kill++;
+					}
+				}
+				// finish
+				break;
+			}
+		}
+	}
+}
+void Game::Move(Character* character){
+	// character position
+	int x;
+	int y;
+	// valid target position for character move
+	int x_move;
+	int y_move;
+	x=character->GetPosition()->GetX();
+	y=character->GetPosition()->GetY();
+	// initialize target position 
+	x_move=x;
+	y_move=y;
+
+	string command_error_info="";
+	while(true){
+		// display map with related information
+		system("clear");
+		cout<<command_error_info<<endl;
+		command_error_info="";
+		map->ShowMove(character,x_move,y_move);
 		ShowStatus();
 		ShowCommand();
+
+		int command_status;
+		int x_difference=0;
+		int y_difference=0;
+		// get command status
+		command_status=HandleCommand(x_move,y_move,x_difference,y_difference);
+		// error in user input, restart input
+		if(command_status==ERROR){
+			cout<<"Press c to continue"<<endl;
+			while(cin.get()!='c')
+				;
+			continue;
+		}	
+		// no error and give up
+		if(command_status==GIVE_UP){
+			break;
+		}
+		// done or ok validate move
+		// beyond range
+		if(!character->IsInMoveRange(x_move+x_difference,y_move+y_difference)){
+			command_error_info="Invalid move: beyond range";
+			continue;
+		}
+		Character* target=map->IsOccupied(x_move+x_difference,y_move+y_difference);	
+		// within range but occupied
+		if(target!=NULL&&target!=character){
+			command_error_info="Invalid move: position already occupied";
+			continue;
+		}
+		// valid
+		x_move=x_move+x_difference;
+		y_move=y_move+y_difference;
+		if(command_status==OK){
+			continue;
+		}
+		if(command_status==DONE){
+			map->MoveCharacter(character,x_move,y_move);
+			break;
+		}			
 	}
 
 }
 void Game::ShowStatus(){
 	cout<<"Score\nDefender:"<<defender_kill<<"\tInvader:"<<invader_kill<<endl;
+	cout<<F_GREEN<<"Camp\t\tCareer\t\tName\tCooldown\tHP"<<OFF<<endl;
 	for(int i=0;i<defender_count;i++){
 		if(defender[i]->GetIsAlive()==false){
 			continue;
@@ -497,9 +485,12 @@ void Game::Start(){
 	Character* current_character;
 	map->Show();
 	while(true){
+		// find next (alive) character
 		current_character=NextTurnCharacter();
 		if(current_character->GetIsAlive()){
+			// enter each round
 			Round(current_character);
+			// until one team wins
 			if(defender_kill==invader_count){
 				cout<<"Defender Win!!!"<<endl;
 				break;

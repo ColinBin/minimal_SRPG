@@ -10,3 +10,6 @@ map.o: map.cpp map.h character.h position.h constants.h
 	g++ -c map.cpp -o map.o
 game.o: game.cpp map.h constants.h
 	g++ -c game.cpp -o game.o
+.PHONY: clean
+clean:
+	-rm srpg_game main.o game.o map.o character.o position.o

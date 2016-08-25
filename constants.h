@@ -1,9 +1,15 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
+#include <iostream>
+using namespace std;
 /*career*/
+const int career_count=3;
 enum Career{WARRIOR,WIZARD,ARCHER};
+const string career_name[career_count]={"Warrior","Wizard","Archer"};
 /*camp*/
 enum Camp{DEFENDER,INVADER};
+/*stamp*/
+const string career_stamp[career_count]={"WA","WI","AR"};
 /*direction command*/
 #define CONFIRM			'o'
 #define FORSAKE			'f'
@@ -11,10 +17,6 @@ enum Camp{DEFENDER,INVADER};
 #define DOWN			's'
 #define LEFT			'a'
 #define RIGHT			'd'
-/*stamp*/
-#define WARRIOR_STAMP 	"WA"
-#define WIZARD_STAMP 	"WI"
-#define ARCHER_STAMP 	"AR"
 
 /*character related*/
 #define WARRIOR_BASE_ATT 		10
