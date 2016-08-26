@@ -48,7 +48,7 @@ void Map::Show(){
     		// set background color
     		cout<<((i+j)%2?BG_BLACK:BG_WHITE);
     		if(temp!=NULL){
-    			string stamp=career_stamp[temp->GetCareer()];
+    			string stamp=temp->GetCareerStamp();
     			cout<<((temp->GetCamp()==DEFENDER)?F_RED:F_BLUE)<<HIGHLIGHT;
     			cout.width(2);
     			cout<<stamp<<OFF;
@@ -83,7 +83,7 @@ void Map::ShowMove(Character* character,int cursor_x,int cursor_y){
 				cout<<((i+j)%2?BG_BLACK:BG_WHITE);
 			}
 			if(temp!=NULL){
-				string stamp=career_stamp[temp->GetCareer()];
+				string stamp=temp->GetCareerStamp();
 				cout<<((temp->GetCamp()==DEFENDER)?F_RED:F_BLUE)<<HIGHLIGHT;
 				cout.width(2);
 				cout<<stamp<<OFF;
@@ -118,7 +118,7 @@ void Map::ShowAttack(Character* character,int cursor_x,int cursor_y){
 				cout<<(((i+j)%2)?BG_BLACK:BG_WHITE);
 			}
 			if(temp!=NULL){
-				string stamp=career_stamp[temp->GetCareer()];
+				string stamp=temp->GetCareerStamp();
 				cout<<((temp->GetCamp()==DEFENDER)?F_RED:F_BLUE)<<HIGHLIGHT;
 				cout.width(2);
 				cout<<stamp<<OFF;

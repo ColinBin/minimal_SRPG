@@ -1,15 +1,6 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
-#include <iostream>
-using namespace std;
-/*career*/
-const int career_count=3;
-enum Career{WARRIOR,WIZARD,ARCHER};
-const string career_name[career_count]={"Warrior","Wizard","Archer"};
-/*camp*/
-enum Camp{DEFENDER,INVADER};
-/*stamp*/
-const string career_stamp[career_count]={"WA","WI","AR"};
+
 /*direction command*/
 #define CONFIRM			'o'
 #define FORSAKE			'f'
@@ -17,28 +8,6 @@ const string career_stamp[career_count]={"WA","WI","AR"};
 #define DOWN			's'
 #define LEFT			'a'
 #define RIGHT			'd'
-
-/*character related*/
-#define WARRIOR_BASE_ATT 		10
-#define WARRIOR_BASE_DEF 		5
-#define WARRIOR_BASE_MOB 		3
-#define WARRIOR_BASE_HP 		20
-#define WARRIOR_BASE_RANGE		1
-#define WARRIOR_BASE_COOLDOWN 	80
-
-#define WIZARD_BASE_ATT 		12
-#define WIZARD_BASE_DEF 		4
-#define WIZARD_BASE_MOB 		1
-#define WIZARD_BASE_HP 			15
-#define WIZARD_BASE_RANGE		6
-#define WIZARD_BASE_COOLDOWN	100
-
-#define ARCHER_BASE_ATT 		8
-#define ARCHER_BASE_DEF 		6
-#define ARCHER_BASE_MOB 		2
-#define ARCHER_BASE_HP 			12
-#define ARCHER_BASE_RANGE		8
-#define ARCHER_BASE_COOLDOWN	70
 
 /*output style*/
 #define BG_BLACK 	"\033[40m"
@@ -61,5 +30,8 @@ const string career_stamp[career_count]={"WA","WI","AR"};
 #define OFF			"\033[0m"
 #define HIGHLIGHT 	"\033[1m"
 #define TWINKLE		"\033[5m"
+
+#define DEFENDER_INFO_COLOR F_RED
+#define	INVADER_INFO_COLOR F_BLUE
 
 #endif

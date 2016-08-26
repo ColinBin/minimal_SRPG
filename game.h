@@ -14,6 +14,7 @@ private:
 	int invader_kill;			// updated after each round, the number of defender defeated by invader
 public:
 	Game();
+	~Game();
 	Game(int defender_count,int invader_count,int map_length,int map_width);	
 	void Initialize();										// initilize, prompt players to input info about characters				
 	Character* NextTurnCharacter();							// find the next character from the heap

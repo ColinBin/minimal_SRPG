@@ -32,74 +32,34 @@ Game::Game(int defender_count,int invader_count,int map_length,int map_width){
 	defender=new Character*[defender_count];
 	invader=new Character*[invader_count];
 }
+Game::~Game(){
+	// free characters
+	for(int i=0;i<invader_count+defender_count+1;i++){
+		delete heap[i];	
+	}
+	// free heap pointers
+	delete [] heap;
+	// free defender pointers
+	delete [] defender; 
+	// free invader pointers
+	delete [] invader;
+}
 
 void Game::Initialize(){
 	void ShowCareerInfo();
 	for(int i=0;i<defender_count;i++){
+		defender[i]=new Character(DEFENDER);
 		system("clear");
 		ShowCareerInfo();
-		cout<<"Input defender#"<<i<<" information:"<<endl;
-		string name;
-		cout<<"Input name:"<<endl;
-		cin>>name;
-		Career career;
-		char career_option;
-		cout<<"Input career:"<<endl;
-		cout<<"1. Warrior\n"<<"2. Wizard\n"<<"3. Archer"<<endl;
-		while(true){
-			cin.ignore();
-			career_option=cin.get();
-			if(career_option>='1'&&career_option<='3'){
-				break;
-			}else{
-				cout<<F_RED<<"Input 1,2 or 3"<<OFF<<endl;
-			}
-		}
-		switch(career_option-'0'){
-			case 1:
-				career=WARRIOR;
-				break;
-			case 2:
-				career=WIZARD;
-				break;
-			case 3:
-				career=ARCHER;
-				break;
-		}
-		defender[i]=new Character(name,true,DEFENDER,career);
+		cout<<"Input defender #"<<i+1<<" information:"<<endl;
+		cin>>*defender[i];
 	}
 	for(int i=0;i<invader_count;i++){
+		invader[i]=new Character(INVADER);
 		system("clear");
 		ShowCareerInfo();
-		cout<<"Input invader#"<<i<<" information:"<<endl;
-		string name;
-		cout<<"Input name:"<<endl;
-		cin>>name;
-		Career career;
-		char career_option;
-		cout<<"Input career:"<<endl;
-		cout<<"1. Warrior\n"<<"2. Wizard\n"<<"3. Archer"<<endl;
-		while(true){
-			cin.ignore();
-			cin.get(career_option);
-			if(career_option>='1'&&career_option<='3'){
-				break;
-			}else{
-				cout<<F_RED<<"Input 1,2 or 3"<<OFF<<endl;
-			}
-		}
-		switch(career_option-'0'){
-			case 1:
-				career=WARRIOR;
-				break;
-			case 2:
-				career=WIZARD;
-				break;
-			case 3:
-				career=ARCHER;
-				break;
-		}
-		invader[i]=new Character(name,true,INVADER,career);
+		cout<<"Input invader #"<<i+1<<" information:"<<endl;
+		cin>>*invader[i];
 		invader[i]->SetCooldown(10);
 	}
 	PlaceCharacters();
@@ -149,6 +109,7 @@ void Game::AdjustHeap(int i,int heap_size){
 	}
 }
 void Game::PlaceCharacters(){
+	// TODO a random position(x,y) generator
 	for(int i=0;i<defender_count;i++){
 		map->PlaceCharacter(defender[i],i,i);
 	}
@@ -183,27 +144,25 @@ void ShowCommand(){
 }
 void ShowCareerInfo(){
 	cout<<HIGHLIGHT;
-	cout<<F_GREEN;
-	cout<<"Warrior"<<endl;
-	cout<<"HP:\t"<<WARRIOR_BASE_HP<<endl;
-	cout<<"ATT:\t"<<WARRIOR_BASE_ATT<<endl;
-	cout<<"DEF:\t"<<WARRIOR_BASE_DEF<<endl;
-	cout<<"MOB:\t"<<WARRIOR_BASE_MOB<<endl;
-	cout<<"RANGE\t"<<WARRIOR_BASE_RANGE<<endl;
-	cout<<F_BLUE;
-	cout<<"Wizard"<<endl;
-	cout<<"HP:\t"<<WIZARD_BASE_HP<<endl;
-	cout<<"ATT:\t"<<WIZARD_BASE_ATT<<endl;
-	cout<<"DEF:\t"<<WIZARD_BASE_DEF<<endl;
-	cout<<"MOB:\t"<<WIZARD_BASE_MOB<<endl;
-	cout<<"RANGE\t"<<WIZARD_BASE_RANGE<<endl;
-	cout<<F_YELLOW;
-	cout<<"Archer"<<endl;
-	cout<<"HP:\t"<<ARCHER_BASE_HP<<endl;
-	cout<<"ATT:\t"<<ARCHER_BASE_ATT<<endl;
-	cout<<"DEF:\t"<<ARCHER_BASE_DEF<<endl;
-	cout<<"MOB:\t"<<ARCHER_BASE_MOB<<endl;
-	cout<<"RANGE\t"<<ARCHER_BASE_RANGE<<endl;
+	for(int i=0;i<career_count;i++){
+		switch(i%3){
+			case 0:
+				cout<<F_GREEN;
+			 	break;
+			case 1:
+				cout<<F_BLUE;
+				break;
+			case 2:
+				cout<<F_YELLOW;
+				break;
+		}
+		cout<<career_list[i].GetCareerLabel()<<endl;
+		cout<<"HP:\t"<<career_list[i].GetHP()<<endl;
+		cout<<"ATT:\t"<<career_list[i].GetAtt()<<endl;
+		cout<<"DEF:\t"<<career_list[i].GetDef()<<endl;
+		cout<<"MOB:\t"<<career_list[i].GetMob()<<endl;
+		cout<<"RANGE:\t"<<career_list[i].GetRange()<<endl;
+	}
 	cout<<OFF;
 }
 int Game::HandleCommand(const int x,const int y,int& x_difference,int& y_difference){
@@ -276,14 +235,12 @@ void Game::Attack(Character* character){
 	int y_attack;
 	int range;
 	Camp camp;
-	Career career;
 	x=character->GetPosition()->GetX();
 	y=character->GetPosition()->GetY();
 	// initialize
 	x_attack=x;
 	y_attack=y;
 	range=character->GetRange();
-	career=character->GetCareer();
 	camp=character->GetCamp();
 	string command_error_info="";
 	while(true){
@@ -394,7 +351,7 @@ void Game::Move(Character* character){
 		if(command_status==GIVE_UP){
 			break;
 		}
-		// done or ok validate move
+		// done or ok, validate move
 		// beyond range
 		if(!character->IsInMoveRange(x_move+x_difference,y_move+y_difference)){
 			command_error_info="Invalid move: beyond range";
@@ -426,53 +383,14 @@ void Game::ShowStatus(){
 		if(defender[i]->GetIsAlive()==false){
 			continue;
 		}
-		cout<<F_RED<<"[Defender]\t";
-		switch(defender[i]->GetCareer()){
-			case WARRIOR:
-				cout<<"(Warrior)\t";
-				break;
-			case WIZARD:
-				cout<<"(Wizard)\t";
-				break;
-			case ARCHER:
-				cout<<"(Archer)\t";
-				break;
-		}
-		cout<<defender[i]->GetName()<<"\t";
-		cout<<defender[i]->GetCooldown()<<"\t";
-		cout.width(4);
-		cout<<defender[i]->GetHP();
-		cout<<" ";
-		for(int j=0;j<defender[i]->GetHP();j++){
-			cout<<"@";
-		}
-		cout<<OFF<<endl;
+		cout<<*defender[i];
 	}
 	for(int i=0;i<invader_count;i++){
 		if(invader[i]->GetIsAlive()==false){
 			continue;
 		}
-		cout<<F_BLUE<<"[Invader]\t";
-		switch(invader[i]->GetCareer()){
-			case WARRIOR:
-				cout<<"(Warrior)\t";
-				break;
-			case WIZARD:
-				cout<<"(Wizard)\t";
-				break;
-			case ARCHER:
-				cout<<"(Archer)\t";
-				break;
-		}
-		cout<<invader[i]->GetName()<<"\t";
-		cout<<invader[i]->GetCooldown()<<"\t";
-		cout.width(4);
-		cout<<invader[i]->GetHP();
-		cout<<" ";
-		for(int j=0;j<invader[i]->GetHP();j++){
-			cout<<"@";
-		}
-		cout<<OFF<<endl;
+		cout<<*invader[i];
+
 	}
 }
 void Game::Round(Character* character){
@@ -501,4 +419,3 @@ void Game::Start(){
 		}
 	}
 }
-
