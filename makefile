@@ -1,4 +1,4 @@
-srpg_game: main.o game.o map.o character.o position.o constants.h character.h
+srpg_game: main.o game.o map.o character.o position.o constants.h
 	g++ main.o game.o map.o character.o position.o -o srpg_game
 character.o: character.cpp character.h constants.h
 	g++ -c character.cpp -o character.o

@@ -2,6 +2,7 @@
 #include <cmath>
 #include "character.h"
 using namespace std;
+
 Career::Career(string career_label,string career_stamp,int hp,int att,int def,int mob,int range,int cooldown){
 	this->career_label=career_label;
 	// in case the length of career stamp is not 2
@@ -95,56 +96,65 @@ int Character::TakeDamage(int damage){
 	return hp;
 }
 
-
-/* customize move patterns */
-bool Character::IsInMoveRange(int target_x,int target_y){
-	int current_position_x=position->GetX();
-	int current_position_y=position->GetY();
+bool Career::IsInMoveRange(int base_x,int base_y,int target_x,int target_y){
 	if(career_label=="Warrior"){
-		if(abs(current_position_x-target_x)+abs(current_position_y-target_y)<=mob){
+		if(abs(base_x-target_x)+abs(base_y-target_y)<=mob){
 			return true;
 		}
 	}else if(career_label=="Wizard"){
-		if(abs(current_position_x-target_x)+abs(current_position_y-target_y)<=mob){
+		if(abs(base_x-target_x)+abs(base_y-target_y)<=mob){
 			return true;
 		}
 	}else if(career_label=="Archer"){
-		if(abs(current_position_x-target_x)+abs(current_position_y-target_y)<=mob){
+		if(abs(base_x-target_x)+abs(base_y-target_y)<=mob){
 			return true;
 		}
 	}else if(career_label=="Knight"){
-		if(abs(current_position_x-target_x)+abs(current_position_y-target_y)<=mob){
+		if(abs(base_x-target_x)+abs(base_y-target_y)<=mob){
 			return true;
 		}
 	}
-	return false;
+	return false;	
 }
-/* customize attack patterns */
-bool Character::IsInAttackRange(int target_x,int target_y){
-	int current_position_x=position->GetX();
-	int current_position_y=position->GetY();
+
+bool Career::IsInAttackRange(int base_x,int base_y,int target_x,int target_y){
 	if(career_label=="Warrior"){
-		if(abs(current_position_x-target_x)+abs(current_position_y-target_y)<=range){
+		if(abs(base_x-target_x)+abs(base_y-target_y)<=range){
 			return true;
 		}
 	}else if(career_label=="Wizard"){
-		if(abs(current_position_x-target_x)+abs(current_position_y-target_y)<=range){
+		if(abs(base_x-target_x)+abs(base_y-target_y)<=range){
 			return true;
 		}
 
 	}else if(career_label=="Archer"){
-		int difference_x=abs(current_position_x-target_x);
-		int difference_y=abs(current_position_y-target_y);
+		int difference_x=abs(base_x-target_x);
+		int difference_y=abs(base_y-target_y);
 		if(difference_x==0&&difference_y<=range||difference_y==0&&difference_x<=range){
 			return true;
 		}
 	}else if(career_label=="Knight"){
-		if(abs(current_position_x-target_x)<=range&&abs(current_position_y-target_y)<=range){
+		if(abs(base_x-target_x)<=range&&abs(base_y-target_y)<=range){
 			return true;
 		}
 	}
 	return false;
 }
+
+/* customize move patterns */
+bool Character::CheckMoveRange(int target_x,int target_y){
+	int current_position_x=position->GetX();
+	int current_position_y=position->GetY();
+	return IsInMoveRange(current_position_x,current_position_y,target_x,target_y);
+}
+
+/* customize attack patterns */
+bool Character::CheckAttackRange(int target_x,int target_y){
+	int current_position_x=position->GetX();
+	int current_position_y=position->GetY();
+	return IsInAttackRange(current_position_x,current_position_y,target_x,target_y);
+}
+
 Character Character::operator=(Career career){
 	this->career_label=career.GetCareerLabel();
 	this->career_stamp=career.GetCareerStamp();

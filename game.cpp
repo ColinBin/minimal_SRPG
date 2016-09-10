@@ -39,10 +39,13 @@ Game::~Game(){
 	}
 	// free heap pointers
 	delete [] heap;
+	heap=NULL;
 	// free defender pointers
-	delete [] defender; 
+	delete [] defender;
+	defender=NULL;
 	// free invader pointers
 	delete [] invader;
+	invader=NULL;
 }
 
 void Game::Initialize(){
@@ -270,7 +273,7 @@ void Game::Attack(Character* character){
 
 		// validate player's attack
 		// if beyond range
-		if(!character->IsInAttackRange(x_attack+x_difference,y_attack+y_difference)){	
+		if(!character->CheckAttackRange(x_attack+x_difference,y_attack+y_difference)){	
 			command_error_info="Invalid attack: beyond range";
 			continue;
 		}
@@ -353,7 +356,7 @@ void Game::Move(Character* character){
 		}
 		// done or ok, validate move
 		// beyond range
-		if(!character->IsInMoveRange(x_move+x_difference,y_move+y_difference)){
+		if(!character->CheckMoveRange(x_move+x_difference,y_move+y_difference)){
 			command_error_info="Invalid move: beyond range";
 			continue;
 		}

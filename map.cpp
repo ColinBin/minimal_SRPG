@@ -20,6 +20,7 @@ Map::~Map(){
 	}
 	// free Position pointer array
 	delete [] atlas;
+	atlas=NULL;
 }
 void Map::SetMap(int length,int width){
 	// space for position pointer array
@@ -75,7 +76,7 @@ void Map::ShowMove(Character* character,int cursor_x,int cursor_y){
 			if(i==cursor_x&&j==cursor_y){
 				// if current location is where the cursor is
 				cout<<BG_PURPLE;
-			}else if(character->IsInMoveRange(i,j)&&temp==NULL){
+			}else if(character->CheckMoveRange(i,j)&&temp==NULL){
 				// if current location is accessible
 				cout<<((difference_sum%2)?BG_D_GREEN:BG_GREEN);
 			}else{
@@ -110,7 +111,7 @@ void Map::ShowAttack(Character* character,int cursor_x,int cursor_y){
 			if(i==cursor_x&&j==cursor_y){
 				// if current location is where the cursor is
 				cout<<BG_PURPLE;
-			}else if(character->IsInAttackRange(i,j)){
+			}else if(character->CheckAttackRange(i,j)){
 				// in attack range
 				cout<<((difference_sum%2)?BG_RED:BG_YELLOW);
 			}else{

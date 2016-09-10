@@ -29,6 +29,9 @@ public:
 	int GetDef()const;									// return def
 	int GetRange()const;								// return attack range
 	int GetCooldown()const;								// return cooldown time
+protected:
+	bool IsInMoveRange(int base_x,int base_y,int target_x,int target_y);	// return true if the position is accessible
+	bool IsInAttackRange(int base_x,int base_y,int target_x,int target_y);	// return true if the position is within attack range
 };
 class Position;
 class Character:public Career{
@@ -48,14 +51,14 @@ public:
 	string GetName()const;							// return name
 	void SetCooldown(int difference);				// add difference to current cooldown
 	void ResetCooldown();							// reset cooldown to the career's cooldown
-	bool IsInMoveRange(int,int);					// return true if the position is accessible
-	bool IsInAttackRange(int,int);					// return true if the position is within attack range
+	bool CheckMoveRange(int target_x,int target_y);					// return true if the position is accessible
+	bool CheckAttackRange(int target_x,int target_y);					// return true if the position is within attack range
 	int TakeDamage(int damage);					 	// substract damage from hp and return the new hp
 	Character operator=(Career career);
 	friend istream& operator>>(istream&,Character&);
 	friend ostream& operator<<(ostream&,Character&);
 };
-
+/* TODO multiple initialization of career_list and career_count */
 /* initialize career info(customize)*/
 const Career career_list[]={
 	// label, stamp, hp, att, def, mob, range, cooldown
@@ -65,4 +68,5 @@ const Career career_list[]={
 	Career("Knight","KN",15,16,10,4,2,150)
 };
 const int career_count=sizeof(career_list)/sizeof(career_list[0]);
+
 #endif
